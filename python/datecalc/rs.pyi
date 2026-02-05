@@ -4,7 +4,17 @@ from typing import Self
 class BusinessCalendar:
     """Business calendar. TBD."""
 
-    def __init__(self: Self, holidays: list[date], weekmask: str) -> Self: ...
+    def __init__(
+        self: Self, holidays: list[date] | None = None, weekmask: str = "1111100"
+    ) -> Self: ...
+    @property
+    def holidays(self: Self) -> list[date]:
+        """Get the holidays associated with the calendar."""
+
+    @property
+    def weekmask(self: Self) -> str:
+        """Get the bitstring representing whether each day of the week is a workday."""
+
     def is_weekday(self: Self, dt: date) -> bool:
         """Check whether ``dt`` is a weekday.
 

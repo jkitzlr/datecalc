@@ -30,3 +30,9 @@ def calendar(holidays: list[date]) -> BusinessCalendar:
 def test_is_holiday(calendar: BusinessCalendar, holidays: list[date]) -> None:
     rslt = [calendar.is_holiday(dt) for dt in holidays]
     assert all(rslt)
+
+
+def test_no_op_cal() -> None:
+    cal = BusinessCalendar()
+    assert cal.holidays == []
+    assert cal.weekmask == "1111100"

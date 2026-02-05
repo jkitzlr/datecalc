@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, str::FromStr};
 
 use chrono::{Datelike, NaiveDate};
 use pyo3::prelude::*;
@@ -43,14 +43,25 @@ impl BusinessCalendar {
 // TODO: need to have code to return weekmask in different forms
 #[pymethods]
 impl BusinessCalendar {
+    #[pyo3(signature = (holidays = None, weekmask = String::from_str("1111100").unwrap()))]
     #[new]
-    fn new_py(holidays: Vec<NaiveDate>, weekmask: String) -> PyResult<Self> {
-        Ok(Self::new(Some(holidays.into_iter()), &weekmask))
+    fn new_py(holidays: Option<Vec<NaiveDate>>, weekmask: String) -> PyResult<Self> {
+        let rslt = match holidays {
+            None => Self::new(None::<Vec<NaiveDate>>, &weekmask),
+            Some(h) => Self::new(Some(h.into_iter()), &weekmask),
+        };
+        Ok(rslt)
     }
 
     #[getter]
     fn holidays(&self) -> PyResult<Vec<NaiveDate>> {
         Ok(self.holidays.clone().into_iter().collect())
+    }
+
+    #[getter]
+    fn weekmask(&self) -> PyResult<String> {
+        let bstr = format!("{:b}", self.weekmask);
+        Ok(bstr)
     }
 
     #[pyo3(name = "is_busday")]
