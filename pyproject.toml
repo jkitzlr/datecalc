@@ -28,6 +28,7 @@ dev = [
     "coverage>=7.13.3",
     "maturin-import-hook>=0.3.0",
     "memray>=1.19.1",
+    "nox>=2025.11.12",
     "pytest>=9.0.2",
     "pytest-coverage>=0.0",
     "pytest-memray>=1.8.0",
