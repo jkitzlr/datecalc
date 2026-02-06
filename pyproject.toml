@@ -27,8 +27,10 @@ bindings = "pyo3"
 dev = [
     "coverage>=7.13.3",
     "maturin-import-hook>=0.3.0",
+    "memray>=1.19.1",
     "pytest>=9.0.2",
     "pytest-coverage>=0.0",
+    "pytest-memray>=1.8.0",
     "ruff>=0.15.0",
     "ty>=0.0.15",
 ]
