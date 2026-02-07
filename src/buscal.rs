@@ -39,6 +39,11 @@ impl BusinessCalendar {
         (WEEKDAYS[dow] & self.weekmask) != 0
     }
 
+    /// Check whether ``dt`` is a weekend.
+    pub fn is_weekend(&self, dt: NaiveDate) -> bool {
+        !self.is_weekday(dt)
+    }
+
     /// Check whether ``dt`` is a holiday.
     pub fn is_holiday(&self, dt: NaiveDate) -> bool {
         self.holidays.contains(&dt)
@@ -98,6 +103,19 @@ impl BusinessCalendar {
             BusdayConvention::ModifiedPreceding => self.modprec(dt),
             BusdayConvention::None => dt,
         }
+    }
+
+    /// Get the first business day of the month of ``dt``.
+    pub fn bom_bus(&self, dt: NaiveDate) -> NaiveDate {
+        self.adjust(dt.with_day(1).unwrap(), BusdayConvention::Following)
+    }
+
+    /// Get the first business day of the month of ``dt``.
+    pub fn eom_bus(&self, dt: NaiveDate) -> NaiveDate {
+        self.adjust(
+            dt.with_day(dt.num_days_in_month() as u32).unwrap(),
+            BusdayConvention::Preceding,
+        )
     }
 
     // * -------------------------------------------------------------------------------
@@ -175,7 +193,12 @@ impl BusinessCalendar {
 
     #[pyo3(name = "is_weekday")]
     fn is_weekday_py(&self, dt: NaiveDate) -> bool {
-        self.is_busday(dt)
+        self.is_weekday(dt)
+    }
+
+    #[pyo3(name = "is_weekend")]
+    fn is_weekend_py(&self, dt: NaiveDate) -> bool {
+        self.is_weekend(dt)
     }
 
     #[pyo3(name = "succ")]
@@ -202,11 +225,21 @@ impl BusinessCalendar {
     fn adjust_py(&self, dt: NaiveDate, conv: BusdayConvention) -> NaiveDate {
         self.adjust(dt, conv)
     }
+
+    #[pyo3(name = "bom_bus")]
+    fn bom_bus_py(&self, dt: NaiveDate) -> NaiveDate {
+        self.bom_bus(dt)
+    }
+
+    #[pyo3(name = "eom_bus")]
+    fn eom_bus_py(&self, dt: NaiveDate) -> NaiveDate {
+        self.eom_bus(dt)
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use chrono::NaiveDate;
+    use chrono::{Days, NaiveDate};
 
     use super::{BusdayConvention, BusinessCalendar};
 
@@ -234,6 +267,34 @@ mod tests {
         let rslt = HOLIDAYS
             .iter()
             .map(|dt| cal.is_holiday(*dt))
+            .reduce(|acc, e| acc & e)
+            .unwrap();
+        assert!(rslt)
+    }
+
+    #[test]
+    fn test_is_weekday() {
+        let cal = get_calendar();
+        let dt = NaiveDate::from_ymd_opt(2026, 2, 2).unwrap();
+        let dates = (0..6).map(|x| dt.checked_add_days(Days::new(x)).unwrap());
+        let expected = [true, true, true, true, true, false, false];
+        let rslt = dates
+            .enumerate()
+            .map(|(i, dt)| cal.is_weekday(dt) == expected[i])
+            .reduce(|acc, e| acc & e)
+            .unwrap();
+        assert!(rslt)
+    }
+
+    #[test]
+    fn test_is_weekend() {
+        let cal = get_calendar();
+        let dt = NaiveDate::from_ymd_opt(2026, 2, 2).unwrap();
+        let dates = (0..6).map(|x| dt.checked_add_days(Days::new(x)).unwrap());
+        let expected = [false, false, false, false, false, true, true];
+        let rslt = dates
+            .enumerate()
+            .map(|(i, dt)| cal.is_weekend(dt) == expected[i])
             .reduce(|acc, e| acc & e)
             .unwrap();
         assert!(rslt)
@@ -299,5 +360,25 @@ mod tests {
             let conv = BusdayConvention::ModifiedPreceding;
             assert_eq!(cal.adjust(dt, conv), rslt)
         }
+    }
+
+    #[test]
+    fn test_bom_bus() {
+        let cal = get_calendar();
+        let dt = NaiveDate::from_ymd_opt(2026, 2, 6).unwrap();
+        assert_eq!(
+            cal.bom_bus(dt),
+            NaiveDate::from_ymd_opt(2026, 2, 2).unwrap()
+        );
+    }
+
+    #[test]
+    fn test_eom_bus() {
+        let cal = get_calendar();
+        let dt = NaiveDate::from_ymd_opt(2026, 2, 6).unwrap();
+        assert_eq!(
+            cal.eom_bus(dt),
+            NaiveDate::from_ymd_opt(2026, 2, 27).unwrap()
+        );
     }
 }

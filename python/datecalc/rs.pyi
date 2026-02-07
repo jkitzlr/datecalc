@@ -48,6 +48,16 @@ class BusinessCalendar:
             Whether ``dt`` is a weekday.
         """
 
+    def is_weekend(self: Self, dt: date) -> bool:
+        """Check whether ``dt`` is a weekend day.
+
+        Args:
+            dt: The date to check.
+
+        Returns:
+            Whether ``dt`` is a weekend day.
+        """
+
     def is_holiday(self: Self, dt: date) -> bool:
         """Check whether ``dt`` is a holiday.
 
@@ -122,4 +132,24 @@ class BusinessCalendar:
 
         Returns:
             Result.
+        """
+
+    def bom_bus(self: Self, dt: date) -> date:
+        """Get the first business day of the month containing ``dt``.
+
+        Args:
+            dt: The input date.
+
+        Returns:
+            The first busday of the month.
+        """
+
+    def eom_bus(self: Self, dt: date) -> date:
+        """Get the last business day of the month containing ``dt``.
+
+        Args:
+            dt: The input date.
+
+        Returns:
+            The last busday of the month.
         """

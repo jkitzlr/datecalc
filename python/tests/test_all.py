@@ -41,6 +41,38 @@ def test_is_holiday(calendar: BusinessCalendar, holidays: list[date]) -> None:
 @pytest.mark.parametrize(
     argnames=["dt", "rslt"],
     argvalues=[
+        (date(2026, 2, 2), True),
+        (date(2026, 2, 3), True),
+        (date(2026, 2, 4), True),
+        (date(2026, 2, 5), True),
+        (date(2026, 2, 6), True),
+        (date(2026, 2, 7), False),
+        (date(2026, 2, 8), False),
+    ],
+)
+def test_is_weekday(dt: date, rslt: bool, calendar: BusinessCalendar) -> None:
+    assert calendar.is_weekday(dt) == rslt
+
+
+@pytest.mark.parametrize(
+    argnames=["dt", "rslt"],
+    argvalues=[
+        (date(2026, 2, 2), False),
+        (date(2026, 2, 3), False),
+        (date(2026, 2, 4), False),
+        (date(2026, 2, 5), False),
+        (date(2026, 2, 6), False),
+        (date(2026, 2, 7), True),
+        (date(2026, 2, 8), True),
+    ],
+)
+def test_is_weekend(dt: date, rslt: bool, calendar: BusinessCalendar) -> None:
+    assert calendar.is_weekend(dt) == rslt
+
+
+@pytest.mark.parametrize(
+    argnames=["dt", "rslt"],
+    argvalues=[
         (date(2026, 2, 5), date(2026, 2, 6)),
         (date(2026, 2, 6), date(2026, 2, 9)),
         (date(2026, 11, 10), date(2026, 11, 12)),
@@ -63,3 +95,11 @@ def test_succ(dt: date, rslt: date, calendar: BusinessCalendar) -> None:
 def test_adjust(
     dt: date, conv: BusdayConvention, rslt: date, calendar: BusinessCalendar
 ) -> None: ...
+
+
+def test_bom_bus(calendar: BusinessCalendar) -> None:
+    assert calendar.bom_bus(date(2026, 2, 6)) == date(2026, 2, 2)
+
+
+def test_eom_bus(calendar: BusinessCalendar) -> None:
+    assert calendar.eom_bus(date(2026, 2, 6)) == date(2026, 2, 27)
