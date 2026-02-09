@@ -1,9 +1,5 @@
 # TODOs
 
-## Critical
-
-1. Implement error handling for from_json py classmethod
-
 ## Others
 
 1. add pendulum as dev dep to test compat

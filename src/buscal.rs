@@ -6,7 +6,10 @@ use chrono::{Datelike, NaiveDate};
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "python")]
-use {pyo3::prelude::*, pyo3::types::PyType, std::fs::File, std::path::PathBuf, std::str::FromStr};
+use {
+    pyo3::exceptions::*, pyo3::prelude::*, pyo3::types::PyType, serde_json, std::fs::File,
+    std::path::PathBuf, std::str::FromStr,
+};
 
 static WEEKDAYS: &[u8; 7] = &[64, 32, 16, 8, 4, 2, 1];
 
@@ -162,6 +165,21 @@ impl BusinessCalendar {
     }
 }
 
+#[cfg(feature = "python")]
+fn py_err_from_serde(err: serde_json::Error) -> PyErr {
+    if err.is_data() {
+        PyValueError::new_err("Bad/malformed data")
+    } else if err.is_eof() {
+        PyEOFError::new_err("Unexpectedly reached end of JSON data.")
+    } else if err.is_io() {
+        PyIOError::new_err("An I/O error occurred parsing JSON file.")
+    } else if err.is_syntax() {
+        PyValueError::new_err("Bad JSON syntax.")
+    } else {
+        PyException::new_err("An unspecified error occurred")
+    }
+}
+
 // TODO: need to have code to return weekmask in different forms
 #[pymethods]
 #[cfg(feature = "python")]
@@ -179,12 +197,12 @@ impl BusinessCalendar {
     #[classmethod]
     fn from_json(_cls: &Bound<'_, PyType>, path: PathBuf) -> PyResult<Self> {
         let file = File::open(path)?;
-        Ok(serde_json::from_reader(file).unwrap())
+        serde_json::from_reader(file).map_err(py_err_from_serde)
     }
 
     #[classmethod]
     fn from_json_str(_cls: &Bound<'_, PyType>, text: String) -> PyResult<Self> {
-        Ok(serde_json::from_str(&text).unwrap())
+        serde_json::from_str(&text).map_err(py_err_from_serde)
     }
 
     #[getter]
@@ -254,7 +272,7 @@ impl BusinessCalendar {
     }
 
     fn to_json_str(&self) -> PyResult<String> {
-        Ok(serde_json::to_string(&self).unwrap())
+        serde_json::to_string(&self).map_err(py_err_from_serde)
     }
 }
 
