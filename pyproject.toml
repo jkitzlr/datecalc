@@ -3,7 +3,7 @@ requires = ["maturin>=1.11,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "datecalc"
+name = "bizdate"
 requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Rust",
@@ -19,7 +19,7 @@ tests = [
 ]
 
 [tool.maturin]
-module-name = "datecalc.rs"
+module-name = "bizdate.rs"
 python-source = "python"
 bindings = "pyo3"
 features = ["python"]

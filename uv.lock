@@ -21,6 +21,47 @@ wheels = [
 ]
 
 [[package]]
+name = "bizdate"
+source = { editable = "." }
+
+[package.optional-dependencies]
+tests = [
+    { name = "pytest" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "coverage" },
+    { name = "maturin-import-hook" },
+    { name = "memray" },
+    { name = "nox" },
+    { name = "pre-commit" },
+    { name = "pytest" },
+    { name = "pytest-coverage" },
+    { name = "pytest-memray" },
+    { name = "ruff" },
+    { name = "ty" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "pytest", marker = "extra == 'tests'" }]
+provides-extras = ["tests"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "coverage", specifier = ">=7.13.3" },
+    { name = "maturin-import-hook", specifier = ">=0.3.0" },
+    { name = "memray", specifier = ">=1.19.1" },
+    { name = "nox", specifier = ">=2025.11.12" },
+    { name = "pre-commit", specifier = ">=4.5.1" },
+    { name = "pytest", specifier = ">=9.0.2" },
+    { name = "pytest-coverage", specifier = ">=0.0" },
+    { name = "pytest-memray", specifier = ">=1.8.0" },
+    { name = "ruff", specifier = ">=0.15.0" },
+    { name = "ty", specifier = ">=0.0.15" },
+]
+
+[[package]]
 name = "cfgv"
 version = "3.5.0"
 source = { registry = "https://pypi.org/simple" }
@@ -140,47 +181,6 @@ wheels = [
 [package.optional-dependencies]
 toml = [
     { name = "tomli", marker = "python_full_version <= '3.11'" },
-]
-
-[[package]]
-name = "datecalc"
-source = { editable = "." }
-
-[package.optional-dependencies]
-tests = [
-    { name = "pytest" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "coverage" },
-    { name = "maturin-import-hook" },
-    { name = "memray" },
-    { name = "nox" },
-    { name = "pre-commit" },
-    { name = "pytest" },
-    { name = "pytest-coverage" },
-    { name = "pytest-memray" },
-    { name = "ruff" },
-    { name = "ty" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "pytest", marker = "extra == 'tests'" }]
-provides-extras = ["tests"]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "coverage", specifier = ">=7.13.3" },
-    { name = "maturin-import-hook", specifier = ">=0.3.0" },
-    { name = "memray", specifier = ">=1.19.1" },
-    { name = "nox", specifier = ">=2025.11.12" },
-    { name = "pre-commit", specifier = ">=4.5.1" },
-    { name = "pytest", specifier = ">=9.0.2" },
-    { name = "pytest-coverage", specifier = ">=0.0" },
-    { name = "pytest-memray", specifier = ">=1.8.0" },
-    { name = "ruff", specifier = ">=0.15.0" },
-    { name = "ty", specifier = ">=0.0.15" },
 ]
 
 [[package]]

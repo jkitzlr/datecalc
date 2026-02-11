@@ -5,4 +5,4 @@ line-ending = "auto"
 quote-style = "double"
 
 [lint.isort]
-known-first-party = ["datecalc"]
+known-first-party = ["bizdate"]

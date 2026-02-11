@@ -1,3 +1,3 @@
-# datecalc
+# bizdate
 
-Performat date calculation library with business calendar awareness
+Business calendar and business day functionality for Python and Rust.

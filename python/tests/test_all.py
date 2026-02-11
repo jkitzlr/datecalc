@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from datecalc import BusdayConvention, BusinessCalendar
+from bizdate import BusdayConvention, BusinessCalendar
 
 
 @pytest.fixture
