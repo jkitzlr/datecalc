@@ -177,5 +177,16 @@ class BusinessCalendar:
             The last busday of the month.
         """
 
+    def busday_count(self: Self, start: date, end: date) -> date:
+        """Count the number of business days in the interval [start, end).
+
+        Args:
+            start: The start of the period.
+            end: The end of the period.
+
+        Returns:
+            Number of business days in the period.
+        """
+
     def to_json_str(self: Self) -> str:
         """Convert the business calendar to its JSON representation."""

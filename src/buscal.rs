@@ -136,6 +136,16 @@ impl BusinessCalendar {
         )
     }
 
+    pub fn busday_count(&self, start: NaiveDate, end: NaiveDate) -> usize {
+        let mut counter = 0;
+        let mut tmp = self.foll(start);
+        while tmp < end {
+            counter += 1;
+            tmp = self.succ(tmp);
+        }
+        counter
+    }
+
     // * -------------------------------------------------------------------------------
     // * PRIVATE METHODS
     // * -------------------------------------------------------------------------------
@@ -320,12 +330,23 @@ mod tests {
         );
     }
 
-    // #[test]
-    // fn test_deser() {
-    //     let json = r#"
-    //     {
-    //         "
-    //     }
-    //     "#;
-    // }
+    #[test]
+    fn test_busday_count() {
+        // brazilian busday count since I had this example on-hand
+        let holidays = vec![
+            "2019-01-01",
+            "2019-03-04",
+            "2019-03-05",
+            "2019-04-19",
+            "2019-05-01",
+            "2019-06-20",
+        ]
+        .into_iter()
+        .map(|s| NaiveDate::parse_from_str(s, "%Y-%m-%d").unwrap())
+        .collect::<Vec<NaiveDate>>();
+        let cal = BusinessCalendar::new(Some(holidays.into_iter()), "1111100");
+        let start = NaiveDate::from_ymd_opt(2019, 1, 1).unwrap();
+        let end = NaiveDate::from_ymd_opt(2019, 6, 30).unwrap();
+        assert_eq!(cal.busday_count(start, end), 123);
+    }
 }

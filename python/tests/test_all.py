@@ -122,3 +122,9 @@ def test_from_json_str(test_cal: str, holidays: list[date]) -> None:
 def test_to_json_str(calendar: BusinessCalendar, test_cal: str) -> None:
     text = calendar.to_json_str()
     assert re.sub(r"[\s\t\n]", "", text) == calendar.to_json_str()
+
+
+def test_busday_count(calendar: BusinessCalendar) -> None:
+    start = date(2026, 1, 1)
+    end = date(2026, 6, 30)
+    assert calendar.busday_count(start, end) == 123

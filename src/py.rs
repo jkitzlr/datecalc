@@ -134,6 +134,11 @@ impl BusinessCalendar {
         self.eom_bus(dt)
     }
 
+    #[pyo3(name = "busday_count")]
+    fn busday_count_py(&self, start: NaiveDate, end: NaiveDate) -> usize {
+        self.busday_count(start, end)
+    }
+
     #[pyo3(name = "to_json_str")]
     fn to_json_str_py(&self) -> PyResult<String> {
         self.to_json_str().map_err(PyErr::from)
