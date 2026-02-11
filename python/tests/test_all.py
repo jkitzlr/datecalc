@@ -1,4 +1,6 @@
+import re
 from datetime import date
+from pathlib import Path
 
 import pytest
 
@@ -103,3 +105,20 @@ def test_bom_bus(calendar: BusinessCalendar) -> None:
 
 def test_eom_bus(calendar: BusinessCalendar) -> None:
     assert calendar.eom_bus(date(2026, 2, 6)) == date(2026, 2, 27)
+
+
+def test_from_json(json_cal_path: Path, holidays: list[date]) -> None:
+    cal = BusinessCalendar.from_json(json_cal_path)
+    assert cal.holidays == holidays
+    assert cal.weekmask == "1111100"
+
+
+def test_from_json_str(test_cal: str, holidays: list[date]) -> None:
+    cal = BusinessCalendar.from_json_str(test_cal)
+    assert cal.holidays == holidays
+    assert cal.weekmask == "1111100"
+
+
+def test_to_json_str(calendar: BusinessCalendar, test_cal: str) -> None:
+    text = calendar.to_json_str()
+    assert re.sub(r"[\s\t\n]", "", text) == calendar.to_json_str()

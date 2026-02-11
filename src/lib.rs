@@ -1,7 +1,13 @@
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 
+#[cfg(feature = "python")]
+mod py;
+#[cfg(feature = "serde")]
+mod serde;
+
 pub mod buscal;
+
 pub use buscal::{BusdayConvention, BusinessCalendar};
 
 /// A Python module implemented in Rust.

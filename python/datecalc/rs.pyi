@@ -1,5 +1,6 @@
 from datetime import date
 from enum import Enum
+from pathlib import Path
 from typing import Any, Self
 
 class BusdayConvention(Enum):
@@ -28,6 +29,28 @@ class BusinessCalendar:
             holidays: List of holidays for this calendar. Defaults to None.
             weekmask: Bitstring representing weekdays Mon-Sun (1=weekday, 0=weekend).
                 Defaults to "1111100".
+        """
+
+    @classmethod
+    def from_json(cls: type[Self], path: Path) -> Self:
+        """Load a business calendar from a JSON file.
+
+        Args:
+            path: Path to the JSON file to load.
+
+        Returns:
+            BusinessCalendar instance.
+        """
+
+    @classmethod
+    def from_json_str(cls: type[Self], text: str) -> Self:
+        """Load a business calendar from a JSON string.
+
+        Args:
+            text: The JSON string to parse into the calendar.
+
+        Returns:
+            BusinessCalendar instance.
         """
 
     @property
@@ -153,3 +176,6 @@ class BusinessCalendar:
         Returns:
             The last busday of the month.
         """
+
+    def to_json_str(self: Self) -> str:
+        """Convert the business calendar to its JSON representation."""

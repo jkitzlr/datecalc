@@ -4,7 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
-python = ["dep:pyo3"]
+python = ["dep:pyo3", "serde"]
+serde = ["serde_json"]
+serde_json = ["dep:serde_json", "dep:serde", "chrono/serde", "serde/derive"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
@@ -15,3 +17,5 @@ crate-type = ["lib", "cdylib"]
 [dependencies]
 chrono = "0.4.43"
 pyo3 = {version = "0.27.0", features = ["hashbrown", "chrono"], optional = true}
+serde = { version = "1.0.228", optional = true }
+serde_json = { version = "1.0.149", features = ["std"], optional = true }

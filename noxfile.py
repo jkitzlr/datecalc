@@ -8,12 +8,14 @@ from nox import Session
     reuse_venv=True,
 )
 def test(session: Session) -> None:
+    session.env["UV_PYTHON"] = session.virtualenv.location
+    session.env["UV_PROJECT_ENVIRONMENT"] = session.virtualenv.location
+
     # * sync the environment from the uv lockfile
     session.run(
         "uv",
         "sync",
-        "--locked",
-        "--active",
+        "--frozen",
     )
     # * run the tests
     session.run(

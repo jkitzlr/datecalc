@@ -1,9 +1,12 @@
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 use chrono::{Datelike, NaiveDate};
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 #[cfg(feature = "python")]
-use {pyo3::prelude::*, std::str::FromStr};
+use pyo3::prelude::*;
 
 static WEEKDAYS: &[u8; 7] = &[64, 32, 16, 8, 4, 2, 1];
 
@@ -18,17 +21,21 @@ pub enum BusdayConvention {
 }
 
 #[cfg_attr(feature = "python", pyclass, derive(FromPyObject))]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct BusinessCalendar {
-    holidays: HashSet<NaiveDate>,
-    weekmask: u8,
+    pub(crate) holidays: BTreeSet<NaiveDate>,
+    pub(crate) weekmask: u8,
 }
 
 impl BusinessCalendar {
     // TODO: this should return an Option or Result
-    pub fn new(holidays_: Option<impl IntoIterator<Item = NaiveDate>>, weekmask_: &str) -> Self {
+    pub fn new(
+        holidays_: Option<impl IntoIterator<Item = NaiveDate>>,
+        weekmask_: &str,
+    ) -> Self {
         let holidays = match holidays_ {
-            None => HashSet::new(),
-            Some(iter) => iter.into_iter().collect::<HashSet<NaiveDate>>(),
+            None => BTreeSet::new(),
+            Some(iter) => iter.into_iter().collect::<BTreeSet<NaiveDate>>(),
         };
         let weekmask = u8::from_str_radix(weekmask_, 2).unwrap();
         Self { holidays, weekmask }
@@ -74,7 +81,12 @@ impl BusinessCalendar {
     }
 
     /// Add ``days`` business days to ``dt``.
-    pub fn add_busdays(&self, dt: NaiveDate, days: u32, conv: BusdayConvention) -> NaiveDate {
+    pub fn add_busdays(
+        &self,
+        dt: NaiveDate,
+        days: u32,
+        conv: BusdayConvention,
+    ) -> NaiveDate {
         let mut tmp = self.adjust(dt, conv);
         let mut cntr = 0u32;
         while cntr < days {
@@ -85,7 +97,12 @@ impl BusinessCalendar {
     }
 
     /// Subtract ``days`` business days to ``dt``.
-    pub fn sub_busdays(&self, dt: NaiveDate, days: u32, conv: BusdayConvention) -> NaiveDate {
+    pub fn sub_busdays(
+        &self,
+        dt: NaiveDate,
+        days: u32,
+        conv: BusdayConvention,
+    ) -> NaiveDate {
         let mut tmp = self.adjust(dt, conv);
         let mut cntr = 0u32;
         while cntr < days {
@@ -155,87 +172,6 @@ impl BusinessCalendar {
         } else {
             tmp
         }
-    }
-}
-
-// TODO: need to have code to return weekmask in different forms
-#[pymethods]
-#[cfg(feature = "python")]
-impl BusinessCalendar {
-    #[pyo3(signature = (holidays = None, weekmask = String::from_str("1111100").unwrap()))]
-    #[new]
-    fn new_py(holidays: Option<Vec<NaiveDate>>, weekmask: String) -> PyResult<Self> {
-        let rslt = match holidays {
-            None => Self::new(None::<Vec<NaiveDate>>, &weekmask),
-            Some(h) => Self::new(Some(h.into_iter()), &weekmask),
-        };
-        Ok(rslt)
-    }
-
-    #[getter]
-    fn holidays(&self) -> PyResult<Vec<NaiveDate>> {
-        Ok(self.holidays.clone().into_iter().collect())
-    }
-
-    #[getter]
-    fn weekmask(&self) -> PyResult<String> {
-        let bstr = format!("{:b}", self.weekmask);
-        Ok(bstr)
-    }
-
-    #[pyo3(name = "is_busday")]
-    fn is_busday_py(&self, dt: NaiveDate) -> bool {
-        self.is_busday(dt)
-    }
-
-    #[pyo3(name = "is_holiday")]
-    fn is_holiday_py(&self, dt: NaiveDate) -> bool {
-        self.is_holiday(dt)
-    }
-
-    #[pyo3(name = "is_weekday")]
-    fn is_weekday_py(&self, dt: NaiveDate) -> bool {
-        self.is_weekday(dt)
-    }
-
-    #[pyo3(name = "is_weekend")]
-    fn is_weekend_py(&self, dt: NaiveDate) -> bool {
-        self.is_weekend(dt)
-    }
-
-    #[pyo3(name = "succ")]
-    fn succ_py(&self, dt: NaiveDate) -> NaiveDate {
-        self.succ(dt)
-    }
-
-    #[pyo3(name = "pred")]
-    fn pred_py(&self, dt: NaiveDate) -> NaiveDate {
-        self.pred(dt)
-    }
-
-    #[pyo3(name = "add_busdays", signature = (dt, days, conv = BusdayConvention::Preceding))]
-    fn add_busdays_py(&self, dt: NaiveDate, days: u32, conv: BusdayConvention) -> NaiveDate {
-        self.add_busdays(dt, days, conv)
-    }
-
-    #[pyo3(name = "sub_busdays", signature = (dt, days, conv = BusdayConvention::Following))]
-    fn sub_busdays_py(&self, dt: NaiveDate, days: u32, conv: BusdayConvention) -> NaiveDate {
-        self.sub_busdays(dt, days, conv)
-    }
-
-    #[pyo3(name = "adjust")]
-    fn adjust_py(&self, dt: NaiveDate, conv: BusdayConvention) -> NaiveDate {
-        self.adjust(dt, conv)
-    }
-
-    #[pyo3(name = "bom_bus")]
-    fn bom_bus_py(&self, dt: NaiveDate) -> NaiveDate {
-        self.bom_bus(dt)
-    }
-
-    #[pyo3(name = "eom_bus")]
-    fn eom_bus_py(&self, dt: NaiveDate) -> NaiveDate {
-        self.eom_bus(dt)
     }
 }
 
@@ -383,4 +319,13 @@ mod tests {
             NaiveDate::from_ymd_opt(2026, 2, 27).unwrap()
         );
     }
+
+    // #[test]
+    // fn test_deser() {
+    //     let json = r#"
+    //     {
+    //         "
+    //     }
+    //     "#;
+    // }
 }
